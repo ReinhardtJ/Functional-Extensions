@@ -1,3 +1,4 @@
+import copy
 from typing import Callable, Generic, TypeVar
 
 T = TypeVar('T')
@@ -22,8 +23,11 @@ class List(list, Generic[T]):
     def filter(self, condition: Callable[[T], bool]) -> 'List':
         return List([x for x in self if condition(x)])
 
+    def deepcopy(self) -> 'List[T]':
+        return copy.deepcopy(self)
 
-test_list = List([4, 1, 2, 3])
+
+test_list = List([5,3,1,8,4])
 
 # traditional way
 c = list(filter(lambda x: x > 2, (map(lambda x: x * x, test_list.copy()))))
