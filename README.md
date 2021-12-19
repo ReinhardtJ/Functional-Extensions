@@ -1,16 +1,21 @@
-# List-Extensions
+# Functional Extensions
+for Python
 
-Use lists in Python by calling functions on them. Why? Because every function
-returns a new instance of a list, which not only prevents mutating the original
-list but also makes it possible to chain functions and build a coherent and
-readable series of operations.
+This repository aims to extend the Python programming language by adding some
+known concepts from other popular programming languages. Those include
+
+- being able to chain both pure and mutating functions by calling them directly 
+  on objects
+- applying functions through a pipe-function
+- composing functions (not yet implemented)
 
 ## Usage
+
 ```python
 # initialize an extended list by either passing a regular list to __init__ or 
 # calling the from_values function
 
-from src.list_extensions import List
+from src.functional_extensions import List
 
 regular_list = [1, 2, 3, 4]
 extended_list_1 = List([1, 2, 3, 4])
@@ -19,8 +24,9 @@ assert regular_list == extended_list_1 == extended_list_2
 ```
 ## Available functions
 ### map
+
 ```python
-from src.list_extensions import List
+from src.functional_extensions import List
 
 input = List.from_values(3, 6, 1, 2, 9)
 
@@ -29,23 +35,25 @@ map(lambda x: x ** 2, input)
 # or
 [x ** 2 for x in input]
 # write
-input.map(lambda x: x**2)
+input.map(lambda x: x ** 2)
 ```
 ### for_each
+
 ```python
-from src.list_extensions import List
+from src.functional_extensions import List
 
 input = List.from_values(3, 6, 1, 2, 9)
 
 # instead of
 for i in input:
     print(i)
-#write
+# write
 input.for_each(print)
 ```
 ### sort
+
 ```python
-from src.list_extensions import List
+from src.functional_extensions import List
 
 input = List.from_values(3, 6, 1, 2, 9)
 
@@ -58,8 +66,9 @@ sorted = input.sort()
 Works as specified
 
 ### filter
+
 ```python
-from src.list_extensions import List
+from src.functional_extensions import List
 
 input = List.from_values(3, 6, 1, 2, 9)
 
@@ -72,13 +81,15 @@ input.filter(lambda x: x % 2 == 0)
 ```
 
 ### deepcopy
+
 ```python
-from src.list_extensions import List
+from src.functional_extensions import List
 
 input = List.from_values(3, 6, 1, 2, 9)
 
 # instead of
 import copy
+
 copy.deepcopy(input)
 # write
 input.deepcopy()

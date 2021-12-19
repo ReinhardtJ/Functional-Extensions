@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from src.list_extensions import List
+from src.functional_extensions import List
 
 
 class TestMap(TestCase):

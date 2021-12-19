@@ -1,5 +1,4 @@
-from src.utils import map
-from src.list_extensions import List
+from src.functional_extensions import List
 
 input = List.from_values(1, 2, 3, 4)
 square = lambda x: x ** 2

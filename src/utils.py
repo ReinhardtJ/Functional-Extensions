@@ -1,4 +1,4 @@
-from src.list_extensions import Iterable, Map
+from src.functional_extensions import Iterable, Map
 from src.types_ import T
 
 
