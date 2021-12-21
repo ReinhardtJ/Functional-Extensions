@@ -2,11 +2,12 @@
 for Python
 
 This repository aims to extend the Python programming language by adding some
-known concepts from other popular programming languages. Those include
+known, concepts from other popular programming languages. Most of those concepts
+are known from languages that support functional programming.
 
 - being able to chain both pure and mutating functions by calling them directly 
   on objects
-- applying functions through a pipe-function
+- applying functions to objects and chaining them through a pipe-function
 - composing functions (not yet implemented)
 
 ## Usage
@@ -58,9 +59,9 @@ from src.functional_extensions import List
 input = List.from_values(3, 6, 1, 2, 9)
 
 # instead of
-sorted = input.copy().sort()
+sorted = input.copy().fe_sorted()
 # write
-sorted = input.sort()
+sorted = input.fe_sorted()
 ```
 ### copy
 Works as specified
