@@ -2,6 +2,7 @@ from unittest import TestCase
 
 import attr
 
+import src.base_classes
 import src.functional_extensions as fe
 
 
@@ -40,7 +41,10 @@ class TestForEach(TestCase):
         reduce_by_sum_extended = ReduceBySum()
         l.for_each(reduce_by_sum_extended)
 
-        self.assertTrue(reduce_by_sum_regular.sum == reduce_by_sum_extended.sum == 2)
+        self.assertTrue(reduce_by_sum_regular.sum ==
+                        reduce_by_sum_extended.sum ==
+                        2)
+
 
 class TestFromValues(TestCase):
     def test_from_values_with_ints(self) -> None:
@@ -57,7 +61,7 @@ class TestPipe(TestCase):
 
     def test_pipe_with_object(self) -> None:
         @attr.s(auto_attribs=True)
-        class Dog(fe.Object):
+        class Dog(src.base_classes.Object):
             name: str
             age: int
 

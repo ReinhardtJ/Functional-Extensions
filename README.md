@@ -59,7 +59,7 @@ from src.functional_extensions import List
 input = List.from_values(3, 6, 1, 2, 9)
 
 # instead of
-sorted = input.copy().fe_sorted()
+sorted = input.fe_copy().fe_sorted()
 # write
 sorted = input.fe_sorted()
 ```
@@ -93,7 +93,7 @@ import copy
 
 copy.deepcopy(input)
 # write
-input.deepcopy()
+input.fe_deepcopy()
 ```
 
 Every action takes place in it's own line, completely coherent and it reads from
