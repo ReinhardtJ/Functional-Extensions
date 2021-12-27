@@ -109,9 +109,9 @@ class List(MutableSequence, list):
         instead of passing a normal list to __init__"""
         return List(list(args))
 
-    def fe_sort(self, *args, **kwargs):
+    def fe_sort(self, key=None, reverse=False):
         """sorts the list inplace and returns it"""
-        super().sort(*args, **kwargs)
+        super().sort(key=key, reverse=reverse)
         return self
 
     def filter(self, condition, *args, **kwargs):

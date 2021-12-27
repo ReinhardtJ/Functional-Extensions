@@ -23,8 +23,11 @@ class TestList(TestCase):
 
     def test_fe_sort_with_ints(self) -> None:
         expected = [1, 2, 3, 4]
-        l = fe.List.from_values(3, 4, 1, 2)
-        actual = l.fe_sort()
+        actual = fe.List.from_values(3, 4, 1, 2).fe_sort()
+        self.assertEquals(expected, actual)
+
+        expected = [4, 3, 2, 1]
+        actual = fe.List.from_values(3, 4, 1, 2).fe_sort(reverse=True)
         self.assertEquals(expected, actual)
 
     def test_fe_sort_with_predicate(self) -> None:
@@ -43,6 +46,15 @@ class TestList(TestCase):
         actual = fe.List.init(students).fe_sort(key=lambda student: student.age)
         self.assertEquals(expected, actual)
 
+    def test_filter(self) -> None:
+        numbers = [1, 2, 3, 4]
+        def is_even(number):
+            return number % 2 == 0
+
+        expected = [2, 4]
+        actual = fe.List.init(numbers).filter(is_even)
+        self.assertEquals(expected, actual)
+
     def test_map_with_int_list(self) -> None:
         l = fe.List.from_values(-1, 0, 1, 2)
 
@@ -55,13 +67,8 @@ class TestList(TestCase):
     def test_map_with_string_list(self) -> None:
         l = fe.List.from_values('hello', 'world')
         expected = ['HELLO', 'WORLD']
-        actual = l.map(str.upper)
+        actual = l.map(str.upper).to_list()
         self.assertEqual(expected, actual)
-
-    def test_map_with_dict(self) -> None:
-        d = fe.Dict.init({'name': 'Jonas', 'profession': 'programmer'})
-        expected = {'name': 5, 'profession': 10}
-        actual = d.map()
 
 
 class TestForEach(TestCase):
