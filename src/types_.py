@@ -2,15 +2,27 @@ import typing
 from abc import abstractmethod, ABC
 from typing import TypeVar
 
+# Type Vars
+
 T = TypeVar('T')
-U = TypeVar('U')
+R = TypeVar('R')
 K = TypeVar('K')
 V = TypeVar('V')
 
 
-class IObject(typing.Generic[T], ABC):
+# Base Class Interfaces
+
+class ExtendedObject(typing.Generic[T], ABC):
+    """Abstract base class for all Extended Object implementations"""
+
+    @staticmethod
     @abstractmethod
-    def pipe(self: T, fun: typing.Callable[[T, ...], U], *args, **kwargs) -> U:
+    def init(self, instance: T) -> T:
+        """static constructor for all extended objects. Needed so that we
+        can immediately wrap intermediate regular objects"""
+
+    @abstractmethod
+    def pipe(self: T, fun: typing.Callable[[T, ...], R], *args, **kwargs) -> R:
         """Applies a function to this object and returns the result"""
         pass
 
@@ -27,8 +39,82 @@ class IObject(typing.Generic[T], ABC):
         pass
 
 
-class IContainer(IObject, typing.Container, typing.Generic[T], ABC):
+class ExtendedContainer(ExtendedObject, typing.Generic[T], ABC):
     pass
 
 
-class IIterable()
+class ExtendedIterable(ExtendedObject,
+                       ABC, typing.Generic[T], typing.Iterable):
+    def to_list(self: 'ExtendedIterable[T]') -> 'ExtendedList[T]':
+        pass
+
+
+class ExtendedIterator(ExtendedIterable, ABC, typing.Generic[T], typing.Iterator):
+    pass
+
+
+class ExtendedSized(ABC, typing.Generic[T], typing.Sized):
+    pass
+
+
+class ExtendedCollection(ExtendedSized, ExtendedIterable, ExtendedContainer,
+                         ABC, typing.Generic[T], typing.Collection):
+    pass
+
+
+class ExtendedReversible(ExtendedIterable,
+                         ABC, typing.Generic[T], typing.Reversible):
+    pass
+
+
+class ExtendedSequence(ExtendedReversible, ExtendedCollection,
+                       ABC, typing.Generic[T], typing.Sequence):
+    pass
+
+
+class ExtendedMutableSequence(ExtendedSequence,
+                              ABC, typing.Generic[T], typing.MutableSequence):
+    pass
+
+
+# Implementation Interfaces
+
+
+class ExtendedList(ExtendedMutableSequence,
+                   ABC, typing.Generic[T], typing.List):
+    pass
+
+
+class ExtendedMapping(ExtendedCollection,
+                      ABC, typing.Generic[K, V], typing.Mapping):
+    pass
+
+
+class ExtendedDict(ExtendedMapping,
+                   ABC, typing.Generic[K, V], typing.Dict):
+    pass
+
+
+class ExtendedSet(ExtendedCollection,
+                  ABC, typing.Generic[T], typing.Set):
+    pass
+
+
+class ExtendedMap(ExtendedIterator,
+                  ABC, typing.Generic[T]):
+    pass
+
+
+class ExtendedEnumerate(ExtendedIterator,
+                        ABC, typing.Generic[T]):
+    pass
+
+
+class ExtendedZip(ExtendedIterator,
+                  ABC, typing.Generic[T]):
+    pass
+
+
+class ExtendedTuple(ExtendedSequence,
+                    ABC, typing.Generic[T]):
+    pass

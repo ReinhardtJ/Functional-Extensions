@@ -3,6 +3,7 @@ from unittest import TestCase
 import attr
 
 import src.base_classes
+import src.functional_extensions
 import src.functional_extensions as fe
 
 
@@ -61,7 +62,7 @@ class TestPipe(TestCase):
 
     def test_pipe_with_object(self) -> None:
         @attr.s(auto_attribs=True)
-        class Dog(src.base_classes.Object):
+        class Dog(src.functional_extensions.Object):
             name: str
             age: int
 
