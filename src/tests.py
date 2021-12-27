@@ -2,26 +2,66 @@ from unittest import TestCase
 
 import attr
 
-import src.base_classes
-import src.functional_extensions
 import src.functional_extensions as fe
 
 
-class TestMap(TestCase):
-    def test_map_with_ints(self) -> None:
+class TestList(TestCase):
+    def test_ctor(self) -> None:
+        expected = [1, 2, 3, 4]
+        actual = fe.List([1, 2, 3, 4])
+        self.assertEquals(expected, actual)
+
+    def test_init(self) -> None:
+        expected = [1, 2, 3, 4]
+        actual = fe.List.init([1, 2, 3, 4])
+        self.assertEquals(expected, actual)
+
+    def test_from_values(self) -> None:
+        expected = [1, 2, 3, 4]
+        actual = fe.List.from_values(1, 2, 3, 4)
+        self.assertEquals(expected, actual)
+
+    def test_fe_sort_with_ints(self) -> None:
+        expected = [1, 2, 3, 4]
+        l = fe.List.from_values(3, 4, 1, 2)
+        actual = l.fe_sort()
+        self.assertEquals(expected, actual)
+
+    def test_fe_sort_with_predicate(self) -> None:
+        @attr.s(auto_attribs=True)
+        class Student:
+            name: str
+            grade: str
+            age: int
+
+        john = Student('john', 'A', 15)
+        jane = Student('jane', 'B', 12)
+        dave = Student('dave', 'B', 10)
+        students = [john, jane, dave]
+
+        expected = [dave, jane, john]
+        actual = fe.List.init(students).fe_sort(key=lambda student: student.age)
+        self.assertEquals(expected, actual)
+
+    def test_map_with_int_list(self) -> None:
         l = fe.List.from_values(-1, 0, 1, 2)
 
         def square(x: int) -> int: return x ** 2
 
         expected = [1, 0, 1, 4]
-        actual = l.map(square)
+        actual = l.map(square).to_list()
         self.assertEqual(expected, actual)
 
-    def test_map_with_string(self) -> None:
+    def test_map_with_string_list(self) -> None:
         l = fe.List.from_values('hello', 'world')
         expected = ['HELLO', 'WORLD']
         actual = l.map(str.upper)
         self.assertEqual(expected, actual)
+
+    def test_map_with_dict(self) -> None:
+        d = fe.Dict.init({'name': 'Jonas', 'profession': 'programmer'})
+        expected = {'name': 5, 'profession': 10}
+        actual = d.map()
 
 
 class TestForEach(TestCase):
