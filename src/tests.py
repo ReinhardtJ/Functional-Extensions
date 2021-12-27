@@ -1,3 +1,4 @@
+import typing
 from unittest import TestCase
 
 import attr
@@ -9,26 +10,47 @@ class TestList(TestCase):
     def test_ctor(self) -> None:
         expected = [1, 2, 3, 4]
         actual = fe.List([1, 2, 3, 4])
-        self.assertEquals(expected, actual)
+        self.assertEqual(expected, actual)
 
     def test_init(self) -> None:
         expected = [1, 2, 3, 4]
         actual = fe.List.init([1, 2, 3, 4])
-        self.assertEquals(expected, actual)
+        self.assertEqual(expected, actual)
 
     def test_from_values(self) -> None:
         expected = [1, 2, 3, 4]
         actual = fe.List.from_values(1, 2, 3, 4)
-        self.assertEquals(expected, actual)
+        self.assertEqual(expected, actual)
+
+    def test_fe_sort_inplace_with_ints(self) -> None:
+        expected = [1, 2, 3, 4]
+        actual = fe.List.from_values(3, 4, 1, 2)
+        actual2 = actual.fe_sort_inplace()
+        self.assertEqual(expected, actual)
+        self.assertIs(actual, actual2)
+
+        expected = [4, 3, 2, 1]
+        actual = fe.List.from_values(3, 4, 1, 2)
+        actual2 = actual.fe_sort_inplace(reverse=True)
+        self.assertEqual(expected, actual)
+        self.assertIs(actual, actual2)
 
     def test_fe_sort_with_ints(self) -> None:
         expected = [1, 2, 3, 4]
-        actual = fe.List.from_values(3, 4, 1, 2).fe_sort()
-        self.assertEquals(expected, actual)
+        unsorted = fe.List.from_values(3, 4, 1, 2)
+        sorted = unsorted.fe_sort()
+        self.assertEqual(expected, sorted)
+        self.assertIsNot(unsorted, sorted)
 
         expected = [4, 3, 2, 1]
-        actual = fe.List.from_values(3, 4, 1, 2).fe_sort(reverse=True)
-        self.assertEquals(expected, actual)
+        unsorted = fe.List.from_values(3, 4, 1, 2)
+        sorted = unsorted.fe_sort(reverse=True)
+        self.assertEqual(expected, sorted)
+        self.assertIsNot(unsorted, sorted)
+
+    def test_any_with_bools(self) -> None:
+        self.assertTrue(fe.List.from_values(True, False, False).any())
+        self.assertFalse(fe.List.from_values(False, False, False).any())
 
     def test_fe_sort_with_predicate(self) -> None:
         @attr.s(auto_attribs=True)
@@ -43,36 +65,57 @@ class TestList(TestCase):
         students = [john, jane, dave]
 
         expected = [dave, jane, john]
-        actual = fe.List.init(students).fe_sort(key=lambda student: student.age)
-        self.assertEquals(expected, actual)
+        actual = fe.List.init(students).fe_sort_inplace(key=lambda student: student.age)
+        self.assertEqual(expected, actual)
 
     def test_filter(self) -> None:
         numbers = [1, 2, 3, 4]
-        def is_even(number):
-            return number % 2 == 0
+
+        def is_even(number): return number % 2 == 0
 
         expected = [2, 4]
         actual = fe.List.init(numbers).filter(is_even)
-        self.assertEquals(expected, actual)
+        self.assertEqual(expected, actual)
+
+    def test_filterfalse(self) -> None:
+        numbers = [1, 2, 3, 4]
+
+        def is_even(number): return number % 2 == 0
+
+        expected = [1, 3]
+        actual = fe.List.init(numbers).filterfalse(is_even)
+        self.assertEqual(expected, actual)
 
     def test_map_with_int_list(self) -> None:
-        l = fe.List.from_values(-1, 0, 1, 2)
-
-        def square(x: int) -> int: return x ** 2
+        def square(x): return x ** 2
 
         expected = [1, 0, 1, 4]
-        actual = l.map(square).to_list()
+        actual = fe.List.from_values(-1, 0, 1, 2).map(square).to_list()
         self.assertEqual(expected, actual)
 
-    def test_map_with_string_list(self) -> None:
-        l = fe.List.from_values('hello', 'world')
-        expected = ['HELLO', 'WORLD']
-        actual = l.map(str.upper).to_list()
+        expected = fe.List.from_values(-1, 0, 1, 2)
+        actual = expected.map(square).to_list()
+        self.assertNotEqual(expected, actual)
+
+    def test_fe_map_with_int_list(self) -> None:
+        def multiply(x, y): return x * y
+
+        expected = [2, 4, 6, 8]
+        actual = fe.List.from_values(1, 2, 3, 4).fe_map(multiply, 2)
         self.assertEqual(expected, actual)
 
+    def test_map_inplace_with_int_list(self) -> None:
+        def square(x): return x ** 2
 
-class TestForEach(TestCase):
-    def test_for_each_with_ints(self) -> None:
+        expected = [1, 0, 1, 4]
+        actual = fe.List.from_values(-1, 0, 1, 2).map_inplace(square)
+        self.assertEqual(expected, actual)
+
+        expected = fe.List.from_values(-1, 0, 1, 2)
+        actual = expected.map_inplace(square)
+        self.assertEqual(expected, actual)
+
+    def test_for_each_with_int_list(self) -> None:
         class ReduceBySum:
             def __init__(self):
                 self.sum = 0
@@ -80,36 +123,66 @@ class TestForEach(TestCase):
             def __call__(self, summand: int) -> None:
                 self.sum += summand
 
-        l = fe.List.from_values(-1, 0, 1, 2)
-
         reduce_by_sum_regular = ReduceBySum()
-        for element in l:
+        for element in [-1, 0, 1, 2]:
             reduce_by_sum_regular(element)
 
         reduce_by_sum_extended = ReduceBySum()
-        l.for_each(reduce_by_sum_extended)
+        fe.List.from_values(-1, 0, 1, 2).for_each(reduce_by_sum_extended)
 
         self.assertTrue(reduce_by_sum_regular.sum ==
                         reduce_by_sum_extended.sum ==
                         2)
 
+    def test_pipe_with_int_list(self) -> None:
+        class CollectSum:
+            def __init__(self):
+                self.sum = 0
 
-class TestFromValues(TestCase):
-    def test_from_values_with_ints(self) -> None:
-        l = fe.List.from_values(-1, 0, 1, 2)
-        self.assertEquals(l, [-1, 0, 1, 2])
+            def __call__(self, l: typing.List) -> None:
+                self.sum = sum(l)
+
+        collect_sum = CollectSum()
+        fe.List.from_values(-1, 0, 1, 2).pipe(collect_sum)
+        expected = 2
+        actual = collect_sum.sum
+        self.assertEqual(expected, actual)
+
+    def test_min_with_int_list(self) -> None:
+        expected = -1
+        actual = fe.List.from_values(4, 2, -1, 1).min()
+        self.assertEqual(expected, actual)
+
+    def test_max_with_int_list(self) -> None:
+        expected = 4
+        actual = fe.List.from_values(4, 2, -1, 1).max()
+        self.assertEqual(expected, actual)
+
+    def test_sum_with_int_list(self) -> None:
+        expected = 6
+        actual = fe.List.from_values(4, 2, -1, 1).sum()
+        self.assertEqual(expected, actual)
+
+    def test_fe_reverse_with_int_list(self) -> None:
+        expected = [4, 3, 2, 1]
+        actual = fe.List.from_values(1, 2, 3, 4).fe_reverse()
+        self.assertEqual(expected, actual)
+
+    def test_zip(self) -> None:
+        expected = [(1, 'sugar'), (2, 'spice'), (3, 'everything nice')]
+
+        actual = fe.List\
+            .from_values(1, 2, 3)\
+            .zip(['sugar', 'spice', 'everything nice'])\
+            .to_list()
+
+        self.assertEqual(expected, actual)
 
 
 class TestPipe(TestCase):
-    def test_pipe_with_ints(self) -> None:
-        l = fe.List.from_values(1, 2, 3, 4)
-        expected = [2, 4, 6, 8]
-        actual = l.pipe(l.map, lambda x: x * 2)
-        self.assertEquals(expected, actual)
-
     def test_pipe_with_object(self) -> None:
         @attr.s(auto_attribs=True)
-        class Dog(src.functional_extensions.Object):
+        class Dog(fe.Object):
             name: str
             age: int
 
@@ -121,13 +194,3 @@ class TestPipe(TestCase):
         actual.pipe(rename_dog, 'Jack')
 
         self.assertEquals(expected, actual)
-
-
-class TestInteropWithList(TestCase):
-    def test_equals_with_ints(self) -> None:
-        normal = [1, 2, 3, 4]
-        extended = fe.List([1, 2, 3, 4])
-        self.assertEqual(normal, extended)
-
-    def test_extended_list_object_is_list_instance(self) -> None:
-        self.assertTrue(isinstance(fe.List(), list))
