@@ -1,9 +1,11 @@
+import copy
 import typing
 from unittest import TestCase
 
 import attr
 
-import src.functional_extensions as fe
+from src.functional_extensions import fe
+from src.functional_extensions.fe import _l, _o
 
 
 class TestList(TestCase):
@@ -171,15 +173,53 @@ class TestList(TestCase):
     def test_zip(self) -> None:
         expected = [(1, 'sugar'), (2, 'spice'), (3, 'everything nice')]
 
-        actual = fe.List\
-            .from_values(1, 2, 3)\
-            .zip(['sugar', 'spice', 'everything nice'])\
+        actual = fe.List \
+            .from_values(1, 2, 3) \
+            .zip(['sugar', 'spice', 'everything nice']) \
             .to_list()
 
         self.assertEqual(expected, actual)
 
+    def test_init_helper(self) -> None:
+        numbers = [1, 2, 3, 4]
+        fe_numbers = _l(numbers)
 
-class TestPipe(TestCase):
+        self.assertEqual(numbers, fe_numbers)
+
+
+class TestObject(TestCase):
+    def test_init_helper(self) -> None:
+        @attr.s(auto_attribs=True)
+        class Dog():
+            name: str
+            age: int
+
+        def rename_dog(dog: Dog, new_name: str):
+            dog_copy = copy.copy(dog)
+            dog_copy.name = new_name
+            return dog_copy
+
+        dog = Dog('Nick', 4)
+        try:
+            extended_dog: typing.Union[Dog, fe.Object] = _o(dog)
+
+            expected_renamed_dog = Dog('Jack', 4)
+            actual_renamed_dog = extended_dog.pipe(rename_dog, 'Jack')
+            self.assertEqual(expected_renamed_dog, actual_renamed_dog)
+
+            copied_dog = extended_dog.fe_copy()
+            self.assertEqual(dog, copied_dog)
+            self.assertIsNot(dog, copied_dog)
+
+            deep_copied_dog = extended_dog.fe_deepcopy()
+            self.assertEqual(dog, deep_copied_dog)
+            self.assertIsNot(dog, deep_copied_dog)
+
+            dog_type = extended_dog.type()
+            self.assertEqual(dog_type, Dog)
+        except BaseException:
+            self.fail(BaseException)
+
     def test_pipe_with_object(self) -> None:
         @attr.s(auto_attribs=True)
         class Dog(fe.Object):
@@ -193,4 +233,4 @@ class TestPipe(TestCase):
         actual = Dog(name='Nick', age=4)
         actual.pipe(rename_dog, 'Jack')
 
-        self.assertEquals(expected, actual)
+        self.assertEqual(expected, actual)

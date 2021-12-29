@@ -1,13 +1,14 @@
 import copy
+import inspect
+import types
 import typing
-from abc import ABC, abstractmethod
+from itertools import filterfalse
+from funcy import compose, partial
 
 
 # Abstract Base Classes
-from itertools import filterfalse
 
-
-class Object(ABC):
+class Object:
     @classmethod
     def init(cls, instance):
         return cls(instance)
@@ -16,20 +17,47 @@ class Object(ABC):
         return function(self, *args, **kwargs)
 
     def fe_copy(self):
-        return self.init(copy.copy(self))
+        return copy.copy(self)
 
     def fe_deepcopy(self, *args, **kwargs):
-        return self.init(copy.deepcopy(self))
+        return copy.deepcopy(self)
 
     def type(self):
         return type(self)
 
 
-class Container(Object, ABC, typing.Container):
+def monkey_patch_bound_methods(cls, instance):
+    """Helper function to easily extend objects without having to change their
+    classes by monkey-patching the extended functions"""
+    instance_copy = copy.copy(instance)
+    methods = [member for member in inspect.getmembers(cls)
+               if not member[0].startswith('__')]
+    for method in methods:
+        try:
+            getattr(instance_copy, method[0])
+            raise ValueError(f'cannot extend {instance_copy}, because it already has'
+                             f'a method called {method[0]}')
+        except:
+            setattr(instance_copy, method[0], types.MethodType(method[1], instance_copy))
+    return instance_copy
+
+
+class Function(Object, typing.Callable):
+    @classmethod
+    def init(cls, instance):
+        f = Function()
+        f.__call__ = instance
+        return f
+
+    def compose(self, function):
+        return Function.init(compose(self, function))
+
+
+class Container(Object, typing.Container):
     pass
 
 
-class Iterable(Object, ABC, typing.Iterable):
+class Iterable(Object, typing.Iterable):
     def to_list(self):
         return List(self)
 
@@ -86,29 +114,29 @@ class Iterable(Object, ABC, typing.Iterable):
         return self.init(filterfalse(condition, self))
 
 
-class Iterator(Iterable, ABC, typing.Iterator):
+class Iterator(Iterable, typing.Iterator):
     pass
 
 
-class Reversible(Object, ABC, typing.Reversible):
+class Reversible(Object, typing.Reversible):
     def fe_reverse(self):
         return self.init(reversed(self))
 
 
-class Sized(Object, ABC, typing.Sized):
+class Sized(Object, typing.Sized):
     def len(self):
         return len(self)
 
 
-class Collection(Sized, Iterable, Container, ABC, typing.Collection):
+class Collection(Sized, Iterable, Container, typing.Collection):
     pass
 
 
-class Sequence(Reversible, Collection, ABC, typing.Sequence):
+class Sequence(Reversible, Collection, typing.Sequence):
     pass
 
 
-class MutableSequence(Sequence, ABC, typing.MutableSequence):
+class MutableSequence(Sequence, typing.MutableSequence):
     def map_inplace(self, apply, *args, **kwargs):
         """Projects each element of the List to a new element and mutates the
         list in place."""
@@ -117,7 +145,7 @@ class MutableSequence(Sequence, ABC, typing.MutableSequence):
         return self
 
 
-class Mapping(Collection, ABC, typing.Mapping):
+class Mapping(Collection, typing.Mapping):
     pass
 
 
@@ -166,3 +194,12 @@ class Tuple(tuple, Sequence, typing.Tuple):
         """Allows creating a Tuple object from an arbitrary number of arguments
         instead of passing a normal tuple to __init__"""
         return Tuple(Tuple(values))
+
+
+_t = Tuple.init
+_m = Map.init
+_s = Set.init
+_d = Dict.init
+_l = List.init
+_f = Function.init
+_o = partial(monkey_patch_bound_methods, Object)

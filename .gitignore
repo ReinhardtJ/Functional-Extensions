@@ -129,4 +129,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-src/prototyping.py
+src/functional_extensions/prototyping.py

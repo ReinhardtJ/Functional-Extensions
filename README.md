@@ -13,7 +13,7 @@ are known from languages that support functional programming.
 
 ## Usage
 
-```
+```python
 import functional_extensions as fe
 
 regular_list = [1, 2, 3, 4]
@@ -30,7 +30,7 @@ extended_tuple = fe.Tuple.init((1, 2, 3, 4))
 ```
 ## Available functions
 ### Object
-```
+```python
 init(cls, instance)
 ```
 
@@ -38,7 +38,7 @@ Initializes an extended object from the instance of a built-in object.
 
 ---
 
-``` 
+```python
 pipe(self, function, *args, **kwargs)
 ``` 
 
@@ -47,7 +47,7 @@ and `**kwarngs` and returns the result.
 
 ---
 
-```
+```python
 fe_copy(self) 
 fe_deepcopy(self)
 ``` 
@@ -56,7 +56,7 @@ Copies `self`, either shallowly or deeply, and returns the result.
 
 ---
 
-```
+```python
 type(self)
 ```
 
@@ -64,7 +64,7 @@ Returns `type(self)`.
 
 ### Iterable
 
-```
+```python
 to_list(self)
 to_set(self)
 to_tuple(self)
@@ -74,7 +74,7 @@ Converts the iterable `self` into the desired object.
 
 ---
 
-```
+```python
 map(self, function)
 ```
 
@@ -83,7 +83,7 @@ elements.
 
 ---
 
-```
+```python
 fe_map(self, function, *args, **kwargs)
 ```
 
@@ -95,7 +95,7 @@ same type that `self` is, and not a new `Map`-instance
 
 ---
 
-```
+```python
 for_each(self, apply, *args, **kwargs)
 ```
 
@@ -104,7 +104,7 @@ as `*args` and `**kwargs`. The list is then returned.
 
 ---
 
-```
+```python
 min(self)
 max(self)
 sum(self)
@@ -117,7 +117,7 @@ Returns `min(self)`, `max(self)`, `sum(self)`, `all(self)` and `any(self)` respe
 
 --- 
 
-```
+```python
 fe_sort(self, key=None, reverse=False)
 ```
 
@@ -126,20 +126,24 @@ the `sorted`-function under the hood with `key` and `reverse`.
 
 ---
 
-`enumerate(self, start=0)`
+```python
+enumerate(self, start=0)
+``` 
 
 Returns an enumerate object from the iterable `self`.
 
 --- 
 
-`zip(self, *iterables)`
+```python
+zip(self, *iterables)
+```
 
 Iterates over `self` and all iterables in `*iterables`, producing tuples with
 an item from each one.
 
 --- 
 
-```
+```python
 filter(self, condition)
 filterfalse(self, condition)
 ```
@@ -152,7 +156,7 @@ with only the elements that `condition` returns false.
 
 ### Reversible
 
-```
+```python
 fe_reverse(self)
 ```
 
@@ -160,7 +164,7 @@ Returns a new instance of the reversed iterable `self`.
 
 ### Sized
 
-```
+```python
 len(self)
 ```
 
@@ -168,7 +172,7 @@ Returns `len(self)`
 
 ### MutableSequence
 
-```
+```python
 map_inplace(self, apply, *args, **kwargs)
 ```
 
@@ -178,7 +182,7 @@ the new value.
 
 ### List
 
-```
+```python
 from_values(cls, *values)
 ```
 
@@ -186,7 +190,7 @@ Creates a new list from the values in `*values`.
 
 ---
 
-```
+```python
 fe_sort_inplace(self, key=None, reverse=False)
 ```
 
@@ -194,7 +198,7 @@ Sorts the list in-place and returns the sorted list
 
 ### Set
 
-```
+```python
 from_values(cls, *values)
 ```
 
@@ -202,7 +206,7 @@ Creates a new set from the values in `*values`.
 
 ### Tuple
 
-```
+```python
 from_values(cls, *values)
 ```
 
