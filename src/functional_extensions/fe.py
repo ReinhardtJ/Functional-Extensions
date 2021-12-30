@@ -3,43 +3,16 @@ import inspect
 import types
 import typing
 from itertools import filterfalse
-from funcy import compose, partial
+import funcy
 
 
 # Abstract Base Classes
 
 class Object:
-    @classmethod
-    def init(cls, instance):
-        return cls(instance)
-
-    def pipe(self, function, *args, **kwargs):
-        return function(self, *args, **kwargs)
-
-    def fe_copy(self):
-        return copy.copy(self)
-
-    def fe_deepcopy(self, *args, **kwargs):
-        return copy.deepcopy(self)
-
-    def type(self):
-        return type(self)
-
-
-def monkey_patch_bound_methods(cls, instance):
-    """Helper function to easily extend objects without having to change their
-    classes by monkey-patching the extended functions"""
-    instance_copy = copy.copy(instance)
-    methods = [member for member in inspect.getmembers(cls)
-               if not member[0].startswith('__')]
-    for method in methods:
-        try:
-            getattr(instance_copy, method[0])
-            raise ValueError(f'cannot extend {instance_copy}, because it already has'
-                             f'a method called {method[0]}')
-        except:
-            setattr(instance_copy, method[0], types.MethodType(method[1], instance_copy))
-    return instance_copy
+    def _pipe(self, function, *args, **kwargs): return function(self, *args, **kwargs)
+    def _copy(self): return copy.copy(self)
+    def _deepcopy(self, *args, **kwargs): return copy.deepcopy(self)
+    def _type(self): return type(self)
 
 
 class Function(Object, typing.Callable):
@@ -49,8 +22,8 @@ class Function(Object, typing.Callable):
         f.__call__ = instance
         return f
 
-    def compose(self, function):
-        return Function.init(compose(self, function))
+    def _compose(self, function):
+        return Function.init(funcy.compose(self, function))
 
 
 class Container(Object, typing.Container):
@@ -58,60 +31,37 @@ class Container(Object, typing.Container):
 
 
 class Iterable(Object, typing.Iterable):
-    def to_list(self):
-        return List(self)
+    def _to_list(self): return List(self)
+    def _to_set(self): return Set(self)
+    def _to_tuple(self): return Tuple(self)
+    def _map(self, function, *args, **kwargs):
+        ctor = initializers[type(self)]
+        return ctor(function(element, *args, **kwargs) for element in self)
 
-    def to_set(self):
-        return Set(self)
-
-    def to_tuple(self):
-        return Tuple(self)
-
-    def map(self, function):
-        return Map(function, self)
-
-    def fe_map(self, function, *args, **kwargs):
-        return self.init(function(element, *args, **kwargs) for element in self)
-
-    def for_each(self, function, *args, **kwargs):
+    def _for_each(self, function, *args, **kwargs):
         for x in self:
             function(x, *args, **kwargs)
         return self
 
-    def min(self):
-        return min(self)
-
-    def max(self):
-        return max(self)
-
-    def sum(self):
-        return sum(self)
-
-    def all(self):
-        return all(self)
-
-    def any(self):
-        return any(self)
-
-    def fe_sort(self, key=None, reverse=False):
-        """Sorts the Iterable by calling the builtin sorted function and
-        returns the sorted list"""
+    def _min(self): return min(self)
+    def _max(self): return max(self)
+    def _sum(self): return sum(self)
+    def _all(self): return all(self)
+    def _any(self): return any(self)
+    def _sort(self, key=None, reverse=False):
         return List(sorted(self, key=key, reverse=reverse))
 
-    def enumerate(self, start=0):
-        return Enumerate(self, start=0)
+    def _enumerate(self, start=0): return Enumerate(self, start=0)
 
-    def zip(self, *iterables):
-        return Zip(self, *iterables)
+    def _zip(self, *iterables): return Zip(self, *iterables)
 
-    def filter(self, condition):
-        """Creates and returns a new iterable with only those elements of the
-        current iterable that pass the condition. """
-        return self.init(filter(condition, self))
+    def _filter(self, condition):
+        ctor = initializers[type(self)]
+        return ctor(filter(condition, self))
 
-    def filterfalse(self, condition):
-        """The inverse of filter. Keeps elements that do not pass the condition"""
-        return self.init(filterfalse(condition, self))
+    def _filterfalse(self, condition):
+        ctor = initializers[type(self)]
+        return ctor(filterfalse(condition, self))
 
 
 class Iterator(Iterable, typing.Iterator):
@@ -119,13 +69,13 @@ class Iterator(Iterable, typing.Iterator):
 
 
 class Reversible(Object, typing.Reversible):
-    def fe_reverse(self):
-        return self.init(reversed(self))
+    def _reverse(self):
+        ctor = initializers[type(self)]
+        return ctor(reversed(self))
 
 
 class Sized(Object, typing.Sized):
-    def len(self):
-        return len(self)
+    def _len(self): return len(self)
 
 
 class Collection(Sized, Iterable, Container, typing.Collection):
@@ -137,7 +87,7 @@ class Sequence(Reversible, Collection, typing.Sequence):
 
 
 class MutableSequence(Sequence, typing.MutableSequence):
-    def map_inplace(self, apply, *args, **kwargs):
+    def _map_inplace(self, apply, *args, **kwargs):
         """Projects each element of the List to a new element and mutates the
         list in place."""
         for i, item in enumerate(iter(self)):
@@ -152,13 +102,7 @@ class Mapping(Collection, typing.Mapping):
 # Implementations
 
 class List(list, MutableSequence, typing.List):
-    @classmethod
-    def from_values(cls, *values):
-        """Allows creating a List object from an arbitrary number of arguments
-        instead of passing a normal list to __init__"""
-        return List(list(values))
-
-    def fe_sort_inplace(self, key=None, reverse=False):
+    def _sort_inplace(self, key=None, reverse=False):
         """sorts the list inplace and returns it"""
         super().sort(key=key, reverse=reverse)
         return self
@@ -169,11 +113,7 @@ class Dict(dict, Mapping, typing.Dict):
 
 
 class Set(set, Collection, typing.Set):
-    @classmethod
-    def from_values(cls, *values):
-        """Allows creating a Set object from an arbitrary number of arguments
-        instead of passing a normal set to __init__"""
-        return Set(set(values))
+    pass
 
 
 class Map(map, Iterator):
@@ -189,17 +129,37 @@ class Zip(zip, Iterator):
 
 
 class Tuple(tuple, Sequence, typing.Tuple):
-    @classmethod
-    def from_values(cls, *values):
-        """Allows creating a Tuple object from an arbitrary number of arguments
-        instead of passing a normal tuple to __init__"""
-        return Tuple(Tuple(values))
+    pass
 
 
-_t = Tuple.init
-_m = Map.init
-_s = Set.init
-_d = Dict.init
-_l = List.init
+def monkey_patch_bound_methods(cls, instance):
+    """Helper function to easily extend objects without having to change their
+    classes by monkey-patching the extended functions"""
+    methods = [member for member in inspect.getmembers(cls)
+               if not member[0].startswith('__')]
+    for method in methods:
+        if hasattr(instance, method[0]):
+            raise AttributeError(f'cannot extend {instance}, because it already has'
+                             f'a method called {method[0]}')
+        setattr(instance, method[0], types.MethodType(method[1], instance))
+    return instance
+
+
+_t = Tuple
+_m = Map
+_s = Set
+_d = Dict
+def _l(*values):
+    if len(values) == 1 and isinstance(values[0], (typing.Container, typing.Iterable)):
+        return List(values[0])
+    return List(values)
 _f = Function.init
-_o = partial(monkey_patch_bound_methods, Object)
+_o = funcy.partial(monkey_patch_bound_methods, Object)
+
+initializers = {
+    Tuple: _t,
+    Map: _m,
+    Set: _s,
+    Dict: _d,
+    List: _l,
+}
