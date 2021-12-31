@@ -6,7 +6,7 @@ with open('README.md', 'r') as f:
       long_description = f.read()
 
 setup(name='Functional Extensions',
-      version='0.0.3',
+      version='0.0.30',
       author='Jonas Reinhardt',
       author_email='jonas@reinhardt.ai',
       description='Functional extensions for Python objects',
