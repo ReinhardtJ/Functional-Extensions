@@ -34,6 +34,7 @@ class Iterable(Object, typing.Iterable):
     def _to_list(self): return List(self)
     def _to_set(self): return Set(self)
     def _to_tuple(self): return Tuple(self)
+
     def _map(self, function, *args, **kwargs):
         ctor = initializers[type(self)]
         return ctor(function(element, *args, **kwargs) for element in self)
@@ -48,13 +49,11 @@ class Iterable(Object, typing.Iterable):
     def _sum(self): return sum(self)
     def _all(self): return all(self)
     def _any(self): return any(self)
-    def _sort(self, key=None, reverse=False):
-        return List(sorted(self, key=key, reverse=reverse))
-
-    def _enumerate(self, start=0): return Enumerate(self, start=0)
-
+    def _enumerate(self, start=0): return Enumerate(self, start=start)
     def _zip(self, *iterables): return Zip(self, *iterables)
 
+    def _sort(self, key=None, reverse=False):
+        return List(sorted(self, key=key, reverse=reverse))
     def _filter(self, condition):
         ctor = initializers[type(self)]
         return ctor(filter(condition, self))
@@ -150,8 +149,10 @@ _m = Map
 _s = Set
 _d = Dict
 def _l(*values):
+    # case _l is called with a container or iterable instance
     if len(values) == 1 and isinstance(values[0], (typing.Container, typing.Iterable)):
         return List(values[0])
+    # case _l is called with multiple individual values
     return List(values)
 _f = Function.init
 _o = funcy.partial(monkey_patch_bound_methods, Object)

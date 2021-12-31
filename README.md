@@ -14,32 +14,30 @@ are known from languages that support functional programming.
 ## Usage
 
 ```python
-import functional_extensions as fe
+from functional_extensions import _l, _s, _d, _t
 
 regular_list = [1, 2, 3, 4]
-extended_list = fe.List.from_values(1, 2, 3, 4)
+extended_list = _l(1, 2, 3, 4)
 
-# all extended classes implement the init()-method. These are used to extend
-# the built-in, regular objects
-extended_list = fe.List.init([1, 2, 3, 4])
-extended_set = fe.Set.init(set(1, 2, 3, 4))
-extended_dict = fe.Dict.init({'key': 'value'})
-extended_tuple = fe.Tuple.init((1, 2, 3, 4))
+# all extended classes have a simple initializer function. Containers can either
+# take individual values as *args, or a regular collection
+extended_list = _l([1, 2, 3, 4]) # or
+extended_list = _l(1, 2, 3, 4)
 
-# In addition to Lists, Tuples and Sets also support using from_values()
+extended_set = _s(1, 2, 3, 4) # or
+extended_set = _s(set(1, 2, 3, 4))
+
+extended_dict = _d({'key': 'value'})
+
+extended_tuple = _t(1, 2, 3, 4) # or
+extended_tuple = _t((1, 2, 3, 4))
 ```
 ## Available functions
 ### Object
-```python
-init(cls, instance)
-```
 
-Initializes an extended object from the instance of a built-in object.
-
----
 
 ```python
-pipe(self, function, *args, **kwargs)
+_pipe(self, function, *args, **kwargs)
 ``` 
 
 Applies the object `self` to a function `function` with the arguments from `*args` 
@@ -48,8 +46,8 @@ and `**kwarngs` and returns the result.
 ---
 
 ```python
-fe_copy(self) 
-fe_deepcopy(self)
+_copy(self) 
+_deepcopy(self)
 ``` 
 
 Copies `self`, either shallowly or deeply, and returns the result.
@@ -57,7 +55,7 @@ Copies `self`, either shallowly or deeply, and returns the result.
 ---
 
 ```python
-type(self)
+_type(self)
 ```
 
 Returns `type(self)`.
@@ -65,9 +63,9 @@ Returns `type(self)`.
 ### Iterable
 
 ```python
-to_list(self)
-to_set(self)
-to_tuple(self)
+_to_list(self)
+_to_set(self)
+_to_tuple(self)
 ```
 
 Converts the iterable `self` into the desired object.
@@ -75,28 +73,26 @@ Converts the iterable `self` into the desired object.
 ---
 
 ```python
-map(self, function)
+_map(self, function)
+```
+
+
+
+---
+
+```python
+_map(self, function, *args, **kwargs)
 ```
 
 Applies every element of `self` to `function` and returns an iterable of the new
-elements.
+elements. Passes `*args` and `**kwargs` to the map-`function`.
+
+Returns an object of the same type as that of `self`.
 
 ---
 
 ```python
-fe_map(self, function, *args, **kwargs)
-```
-
-Similar to `map`, but you can additionally pass `*args` and `**kwargs` to the
-map-`function`. 
-
-The main difference is, that `fe_map` returns an instance of the
-same type that `self` is, and not a new `Map`-instance
-
----
-
-```python
-for_each(self, apply, *args, **kwargs)
+_for_each(self, apply, *args, **kwargs)
 ```
 
 For every element in `self`, `function` is called with said element, as well
@@ -105,11 +101,11 @@ as `*args` and `**kwargs`. The list is then returned.
 ---
 
 ```python
-min(self)
-max(self)
-sum(self)
-all(self)
-any(self)
+_min(self)
+_max(self)
+_sum(self)
+_all(self)
+_any(self)
 ```
 
 
@@ -118,7 +114,7 @@ Returns `min(self)`, `max(self)`, `sum(self)`, `all(self)` and `any(self)` respe
 --- 
 
 ```python
-fe_sort(self, key=None, reverse=False)
+_sort(self, key=None, reverse=False)
 ```
 
 Sorts all elements from the iterable `self` in a new list and returns it. Calls
@@ -127,7 +123,7 @@ the `sorted`-function under the hood with `key` and `reverse`.
 ---
 
 ```python
-enumerate(self, start=0)
+_enumerate(self, start=0)
 ``` 
 
 Returns an enumerate object from the iterable `self`.
@@ -144,20 +140,20 @@ an item from each one.
 --- 
 
 ```python
-filter(self, condition)
-filterfalse(self, condition)
+_filter(self, condition)
+_filterfalse(self, condition)
 ```
 
-`filter` returns a new instance of this iterable with only the elements that
+`_filter` returns a new instance of this iterable with only the elements that
 `condition` returns true.
 
-`filterfalse`returns a new instance of this iterable
+`_filterfalse`returns a new instance of this iterable
 with only the elements that `condition` returns false.
 
 ### Reversible
 
 ```python
-fe_reverse(self)
+_reverse(self)
 ```
 
 Returns a new instance of the reversed iterable `self`.
@@ -165,7 +161,7 @@ Returns a new instance of the reversed iterable `self`.
 ### Sized
 
 ```python
-len(self)
+_len(self)
 ```
 
 Returns `len(self)`
@@ -173,7 +169,7 @@ Returns `len(self)`
 ### MutableSequence
 
 ```python
-map_inplace(self, apply, *args, **kwargs)
+_map_inplace(self, apply, *args, **kwargs)
 ```
 
 Applies every element of `self` to `function` and overwrites this element with
@@ -182,35 +178,13 @@ the new value.
 
 ### List
 
-```python
-from_values(cls, *values)
-```
-
-Creates a new list from the values in `*values`.
-
----
 
 ```python
-fe_sort_inplace(self, key=None, reverse=False)
+_sort_inplace(self, key=None, reverse=False)
 ```
 
 Sorts the list in-place and returns the sorted list
 
-### Set
-
-```python
-from_values(cls, *values)
-```
-
-Creates a new set from the values in `*values`.
-
-### Tuple
-
-```python
-from_values(cls, *values)
-```
-
-Creates a new tuple from the values in `*values`.
 
 ## Examples
 
