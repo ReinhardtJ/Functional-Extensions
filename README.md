@@ -14,23 +14,26 @@ are known from languages that support functional programming.
 ## Usage
 
 ```python
-from functional_extensions import _l, _s, _d, _t
+from functional_extensions import l_, s_, d_, t_, f_
 
 regular_list = [1, 2, 3, 4]
-extended_list = _l(1, 2, 3, 4)
+extended_list = l_(1, 2, 3, 4)
 
 # all extended classes have a simple initializer function. Containers can either
 # take individual values as *args, or a regular collection
-extended_list = _l([1, 2, 3, 4]) # or
-extended_list = _l(1, 2, 3, 4)
+extended_list = l_([1, 2, 3, 4]) # or
+extended_list = l_(1, 2, 3, 4)
 
-extended_set = _s(1, 2, 3, 4) # or
-extended_set = _s(set(1, 2, 3, 4))
+extended_set = s_(1, 2, 3, 4) # or
+extended_set = s_(set(1, 2, 3, 4))
 
-extended_dict = _d({'key': 'value'})
+extended_dict = d_({'key': 'value'})
 
-extended_tuple = _t(1, 2, 3, 4) # or
-extended_tuple = _t((1, 2, 3, 4))
+extended_tuple = t_(1, 2, 3, 4) # or
+extended_tuple = t_((1, 2, 3, 4))
+
+def add(a, b): return a + b
+extended_function = f_(add)
 ```
 ## Available functions
 ### Object
@@ -60,8 +63,9 @@ _type(self)
 
 Returns `type(self)`.
 
-### Iterable
+### Sequences and Containers
 
+#### Iterable
 ```python
 _to_list(self)
 _to_set(self)
@@ -150,7 +154,7 @@ _filterfalse(self, condition)
 `_filterfalse`returns a new instance of this iterable
 with only the elements that `condition` returns false.
 
-### Reversible
+#### Reversible
 
 ```python
 _reverse(self)
@@ -158,7 +162,7 @@ _reverse(self)
 
 Returns a new instance of the reversed iterable `self`.
 
-### Sized
+#### Sized
 
 ```python
 _len(self)
@@ -166,7 +170,7 @@ _len(self)
 
 Returns `len(self)`
 
-### MutableSequence
+#### MutableSequence
 
 ```python
 _map_inplace(self, apply, *args, **kwargs)
@@ -176,7 +180,7 @@ Applies every element of `self` to `function` and overwrites this element with
 the new value.
 
 
-### List
+#### List
 
 
 ```python
@@ -185,6 +189,32 @@ _sort_inplace(self, key=None, reverse=False)
 
 Sorts the list in-place and returns the sorted list
 
+### Functions
+
+```python
+compose_(self, function)
+```
+
+Composes a function
+
+---
+
+```python
+and_(self, other_function)
+or_(self, other_function)
+not_(self)
+```
+
+Composes two predicates.
+
+---
+
+```python
+partial_(self, *args, **kwargs)
+```
+
+Partially applys `*args`, and `**kwargs` to `self` and returns the partial 
+function.
 
 ## Examples
 

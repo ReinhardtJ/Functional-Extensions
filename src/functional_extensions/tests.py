@@ -1,49 +1,50 @@
 import copy
 import typing
+from math import sqrt
 from unittest import TestCase
 
 import attr
 
 from src.functional_extensions import fe
-from src.functional_extensions.fe import _l, _o
+from src.functional_extensions.fe import l_, o_, f_
 
 
 class TestList(TestCase):
     def test_ctor(self) -> None:
         expected = [1, 2, 3, 4]
-        actual = _l([1, 2, 3, 4])
-        actual2 = _l(1, 2, 3, 4)
+        actual = l_([1, 2, 3, 4])
+        actual2 = l_(1, 2, 3, 4)
         self.assertTrue(expected == actual == actual2)
 
     def test_sort_inplace_with_ints(self) -> None:
         expected = [1, 2, 3, 4]
-        actual = _l(3, 4, 1, 2)
-        actual2 = actual._sort_inplace()
+        actual = l_(3, 4, 1, 2)
+        actual2 = actual.sort_inplace_()
         self.assertEqual(expected, actual)
         self.assertIs(actual, actual2)
 
         expected = [4, 3, 2, 1]
-        actual = _l(3, 4, 1, 2)
-        actual2 = actual._sort_inplace(reverse=True)
+        actual = l_(3, 4, 1, 2)
+        actual2 = actual.sort_inplace_(reverse=True)
         self.assertEqual(expected, actual)
         self.assertIs(actual, actual2)
 
     def test_sort_with_ints(self) -> None:
         expected = [1, 2, 3, 4]
-        unsorted = _l(3, 4, 1, 2)
-        sorted = unsorted._sort()
+        unsorted = l_(3, 4, 1, 2)
+        sorted = unsorted.sort_()
         self.assertEqual(expected, sorted)
         self.assertIsNot(unsorted, sorted)
 
         expected = [4, 3, 2, 1]
-        unsorted = _l(3, 4, 1, 2)
-        sorted = unsorted._sort(reverse=True)
+        unsorted = l_(3, 4, 1, 2)
+        sorted = unsorted.sort_(reverse=True)
         self.assertEqual(expected, sorted)
         self.assertIsNot(unsorted, sorted)
 
     def test_any_with_bools(self) -> None:
-        self.assertTrue(_l(True, False, False)._any())
-        self.assertFalse(_l(False, False, False)._any())
+        self.assertTrue(l_(True, False, False).any_())
+        self.assertFalse(l_(False, False, False).any_())
 
     def test_sort_with_predicate(self) -> None:
         @attr.s(auto_attribs=True)
@@ -58,7 +59,7 @@ class TestList(TestCase):
         students = [john, jane, dave]
 
         expected = [dave, jane, john]
-        actual = _l(students)._sort_inplace(key=lambda student: student.age)
+        actual = l_(students).sort_inplace_(key=lambda student: student.age)
         self.assertEqual(expected, actual)
 
     def test_filter(self) -> None:
@@ -67,7 +68,7 @@ class TestList(TestCase):
         def is_even(number): return number % 2 == 0
 
         expected = [2, 4]
-        actual = _l(numbers)._filter(is_even)
+        actual = l_(numbers).filter_(is_even)
         self.assertEqual(expected, actual)
 
     def test_filterfalse(self) -> None:
@@ -76,36 +77,36 @@ class TestList(TestCase):
         def is_even(number): return number % 2 == 0
 
         expected = [1, 3]
-        actual = _l(numbers)._filterfalse(is_even)
+        actual = l_(numbers).filterfalse_(is_even)
         self.assertEqual(expected, actual)
 
     def test_map_with_int_list(self) -> None:
         def square(x): return x ** 2
 
         expected = [1, 0, 1, 4]
-        actual = _l(-1, 0, 1, 2)._map(square)._to_list()
+        actual = l_(-1, 0, 1, 2).map_(square).to_list_()
         self.assertEqual(expected, actual)
 
-        expected = _l(-1, 0, 1, 2)
-        actual = expected._map(square).to_list()
+        expected = l_(-1, 0, 1, 2)
+        actual = expected.map_(square).to_list()
         self.assertNotEqual(expected, actual)
 
     def test_map_with_int_list(self) -> None:
         def multiply(x, y): return x * y
 
         expected = [2, 4, 6, 8]
-        actual = _l(1, 2, 3, 4)._map(multiply, 2)
+        actual = l_(1, 2, 3, 4).map_(multiply, 2)
         self.assertEqual(expected, actual)
 
     def test_map_inplace_with_int_list(self) -> None:
         def square(x): return x ** 2
 
         expected = [1, 0, 1, 4]
-        actual = _l(-1, 0, 1, 2)._map_inplace(square)
+        actual = l_(-1, 0, 1, 2).map_inplace_(square)
         self.assertEqual(expected, actual)
 
-        expected = _l(-1, 0, 1, 2)
-        actual = expected._map_inplace(square)
+        expected = l_(-1, 0, 1, 2)
+        actual = expected.map_inplace_(square)
         self.assertEqual(expected, actual)
 
     def test_for_each_with_int_list(self) -> None:
@@ -121,7 +122,7 @@ class TestList(TestCase):
             reduce_by_sum_regular(element)
 
         reduce_by_sum_extended = ReduceBySum()
-        _l(-1, 0, 1, 2)._for_each(reduce_by_sum_extended)
+        l_(-1, 0, 1, 2).for_each_(reduce_by_sum_extended)
 
         self.assertTrue(reduce_by_sum_regular.sum ==
                         reduce_by_sum_extended.sum ==
@@ -136,36 +137,36 @@ class TestList(TestCase):
                 self.sum = sum(l)
 
         collect_sum = CollectSum()
-        _l(-1, 0, 1, 2)._pipe(collect_sum)
+        l_(-1, 0, 1, 2).pipe_(collect_sum)
         expected = 2
         actual = collect_sum.sum
         self.assertEqual(expected, actual)
 
     def test_min_with_int_list(self) -> None:
         expected = -1
-        actual = _l(4, 2, -1, 1)._min()
+        actual = l_(4, 2, -1, 1).min_()
         self.assertEqual(expected, actual)
 
     def test_max_with_int_list(self) -> None:
         expected = 4
-        actual = _l(4, 2, -1, 1)._max()
+        actual = l_(4, 2, -1, 1).max_()
         self.assertEqual(expected, actual)
 
     def test_sum_with_int_list(self) -> None:
         expected = 6
-        actual = _l(4, 2, -1, 1)._sum()
+        actual = l_(4, 2, -1, 1).sum_()
         self.assertEqual(expected, actual)
 
     def test_reverse_with_int_list(self) -> None:
         expected = [4, 3, 2, 1]
-        actual = _l(1, 2, 3, 4)._reverse()
+        actual = l_(1, 2, 3, 4).reverse_()
         self.assertEqual(expected, actual)
 
     def test_zip(self) -> None:
         expected = [(1, 'sugar'), (2, 'spice'), (3, 'everything nice')]
 
-        actual = _l(1, 2, 3)._zip(['sugar', 'spice', 'everything nice']) \
-                            ._to_list()
+        actual = l_(1, 2, 3).zip_(['sugar', 'spice', 'everything nice']) \
+                            .to_list_()
 
         self.assertEqual(expected, actual)
 
@@ -183,21 +184,21 @@ class TestObject(TestCase):
 
         dog = Dog('Nick', 4)
         try:
-            extended_dog = _o(dog)
+            extended_dog = o_(dog)
 
             expected_renamed_dog = Dog('Jack', 4)
-            actual_renamed_dog = extended_dog._pipe(rename_dog, 'Jack')
+            actual_renamed_dog = extended_dog.pipe_(rename_dog, 'Jack')
             self.assertEqual(expected_renamed_dog, actual_renamed_dog)
 
-            copied_dog = extended_dog._copy()
+            copied_dog = extended_dog.copy_()
             self.assertEqual(dog, copied_dog)
             self.assertIsNot(dog, copied_dog)
 
-            deep_copied_dog = extended_dog._deepcopy()
+            deep_copied_dog = extended_dog.deepcopy_()
             self.assertEqual(dog, deep_copied_dog)
             self.assertIsNot(dog, deep_copied_dog)
 
-            dog_type = extended_dog._type()
+            dog_type = extended_dog.type_()
             self.assertEqual(dog_type, Dog)
         except BaseException:
             self.fail(BaseException)
@@ -213,6 +214,57 @@ class TestObject(TestCase):
 
         expected = Dog(name='Jack', age=4)
         actual = Dog(name='Nick', age=4)
-        actual._pipe(rename_dog, 'Jack')
+        actual.pipe_(rename_dog, 'Jack')
 
         self.assertEqual(expected, actual)
+
+
+class TestFunction(TestCase):
+    def test_init_helper(self):
+        def add(a, b): return a + b
+        extended_add = f_(add)
+
+        expected = add(1, 1)
+        actual = extended_add(1, 1)
+        self.assertEqual(expected, actual)
+
+    def test_compose(self):
+        def add(a, b): return a + b
+        def square(a): return a ** 2
+
+        add_and_square = f_(add).compose_(square)
+        expected = square(add(1,2))
+        actual = add_and_square(1, 2)
+        self.assertEqual(expected, actual)
+
+    def test_and(self):
+        def is_even(a): return a % 2 == 0
+        def is_divisable_by_three(a): return a % 3 == 0
+
+        is_even_and_divisable_by_three = f_(is_even).and_(is_divisable_by_three)
+        self.assertTrue(is_even_and_divisable_by_three(12))
+        self.assertFalse(is_even_and_divisable_by_three(4))
+
+    def test_or(self):
+        def is_even(a): return a % 2 == 0
+        def is_divisable_by_three(a): return a % 3 == 0
+
+        is_even_or_divisable_by_three = f_(is_even).or_(is_divisable_by_three)
+        self.assertTrue(is_even_or_divisable_by_three(4))
+        self.assertTrue(is_even_or_divisable_by_three(3))
+        self.assertTrue(is_even_or_divisable_by_three(12))
+        self.assertFalse(is_even_or_divisable_by_three(7))
+
+    def test_not(self):
+        def is_even(a): return a % 2 == 0
+
+        is_not_even = f_(is_even).not_()
+
+        self.assertTrue(is_not_even(3))
+        self.assertFalse(is_not_even(4))
+
+    def test_partial(self):
+        def multiply(a, b): return a * b
+
+        multiply_by_three = f_(multiply).partial_(3)
+        self.assertEqual(9, multiply_by_three(3))

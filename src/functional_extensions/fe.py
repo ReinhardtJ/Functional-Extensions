@@ -9,21 +9,33 @@ import funcy
 # Abstract Base Classes
 
 class Object:
-    def _pipe(self, function, *args, **kwargs): return function(self, *args, **kwargs)
-    def _copy(self): return copy.copy(self)
-    def _deepcopy(self, *args, **kwargs): return copy.deepcopy(self)
-    def _type(self): return type(self)
+    def pipe_(self, function, *args, **kwargs): return function(self, *args, **kwargs)
+    def copy_(self): return copy.copy(self)
+    def deepcopy_(self): return copy.deepcopy(self)
+    def type_(self): return type(self)
 
 
 class Function(Object, typing.Callable):
-    @classmethod
-    def init(cls, instance):
-        f = Function()
-        f.__call__ = instance
-        return f
+    def __init__(self, inner_function):
+        self._inner_function = inner_function
 
-    def _compose(self, function):
-        return Function.init(funcy.compose(self, function))
+    def __call__(self, *args, **kwargs):
+        return self._inner_function(*args, **kwargs)
+
+    def compose_(self, function):
+        return Function(funcy.compose(function, self))
+
+    def and_(self, other_function):
+        return Function(funcy.all_fn(self, other_function))
+
+    def or_(self, other_function):
+        return Function(funcy.any_fn(self, other_function))
+
+    def not_(self):
+        return Function(funcy.complement(self))
+
+    def partial_(self, *args, **kwargs):
+        return Function(funcy.partial(self, *args, **kwargs))
 
 
 class Container(Object, typing.Container):
@@ -31,34 +43,34 @@ class Container(Object, typing.Container):
 
 
 class Iterable(Object, typing.Iterable):
-    def _to_list(self): return List(self)
-    def _to_set(self): return Set(self)
-    def _to_tuple(self): return Tuple(self)
+    def to_list_(self): return List(self)
+    def to_set_(self): return Set(self)
+    def to_tuple_(self): return Tuple(self)
 
-    def _map(self, function, *args, **kwargs):
+    def map_(self, function, *args, **kwargs):
         ctor = initializers[type(self)]
         return ctor(function(element, *args, **kwargs) for element in self)
 
-    def _for_each(self, function, *args, **kwargs):
+    def for_each_(self, function, *args, **kwargs):
         for x in self:
             function(x, *args, **kwargs)
         return self
 
-    def _min(self): return min(self)
-    def _max(self): return max(self)
-    def _sum(self): return sum(self)
-    def _all(self): return all(self)
-    def _any(self): return any(self)
-    def _enumerate(self, start=0): return Enumerate(self, start=start)
-    def _zip(self, *iterables): return Zip(self, *iterables)
+    def min_(self): return min(self)
+    def max_(self): return max(self)
+    def sum_(self): return sum(self)
+    def all_(self): return all(self)
+    def any_(self): return any(self)
+    def enumerate_(self, start=0): return Enumerate(self, start=start)
+    def zip_(self, *iterables): return Zip(self, *iterables)
 
-    def _sort(self, key=None, reverse=False):
+    def sort_(self, key=None, reverse=False):
         return List(sorted(self, key=key, reverse=reverse))
-    def _filter(self, condition):
+    def filter_(self, condition):
         ctor = initializers[type(self)]
         return ctor(filter(condition, self))
 
-    def _filterfalse(self, condition):
+    def filterfalse_(self, condition):
         ctor = initializers[type(self)]
         return ctor(filterfalse(condition, self))
 
@@ -68,13 +80,13 @@ class Iterator(Iterable, typing.Iterator):
 
 
 class Reversible(Object, typing.Reversible):
-    def _reverse(self):
+    def reverse_(self):
         ctor = initializers[type(self)]
         return ctor(reversed(self))
 
 
 class Sized(Object, typing.Sized):
-    def _len(self): return len(self)
+    def len_(self): return len(self)
 
 
 class Collection(Sized, Iterable, Container, typing.Collection):
@@ -86,7 +98,7 @@ class Sequence(Reversible, Collection, typing.Sequence):
 
 
 class MutableSequence(Sequence, typing.MutableSequence):
-    def _map_inplace(self, apply, *args, **kwargs):
+    def map_inplace_(self, apply, *args, **kwargs):
         """Projects each element of the List to a new element and mutates the
         list in place."""
         for i, item in enumerate(iter(self)):
@@ -101,7 +113,7 @@ class Mapping(Collection, typing.Mapping):
 # Implementations
 
 class List(list, MutableSequence, typing.List):
-    def _sort_inplace(self, key=None, reverse=False):
+    def sort_inplace_(self, key=None, reverse=False):
         """sorts the list inplace and returns it"""
         super().sort(key=key, reverse=reverse)
         return self
@@ -131,36 +143,35 @@ class Tuple(tuple, Sequence, typing.Tuple):
     pass
 
 
-def monkey_patch_bound_methods(cls, instance):
-    """Helper function to easily extend objects without having to change their
-    classes by monkey-patching the extended functions"""
-    methods = [member for member in inspect.getmembers(cls)
-               if not member[0].startswith('__')]
-    for method in methods:
-        if hasattr(instance, method[0]):
-            raise AttributeError(f'cannot extend {instance}, because it already has'
-                             f'a method called {method[0]}')
-        setattr(instance, method[0], types.MethodType(method[1], instance))
-    return instance
-
-
-_t = Tuple
-_m = Map
-_s = Set
-_d = Dict
-def _l(*values):
+def initialize_extended_list(*values):
     # case _l is called with a container or iterable instance
     if len(values) == 1 and isinstance(values[0], (typing.Container, typing.Iterable)):
         return List(values[0])
     # case _l is called with multiple individual values
     return List(values)
-_f = Function.init
-_o = funcy.partial(monkey_patch_bound_methods, Object)
+
+def initialize_extended_object(instance):
+    methods = [member for member in inspect.getmembers(Object)
+               if not member[0].startswith('__')]
+    for method in methods:
+        if hasattr(instance, method[0]):
+            raise AttributeError(f'cannot extend {instance}, because it already has'
+                                 f'a method called {method[0]}')
+        setattr(instance, method[0], types.MethodType(method[1], instance))
+    return instance
+
+t_ = Tuple
+m_ = Map
+s_ = Set
+d_ = Dict
+f_ = Function
+l_ = initialize_extended_list
+o_ = initialize_extended_object
 
 initializers = {
-    Tuple: _t,
-    Map: _m,
-    Set: _s,
-    Dict: _d,
-    List: _l,
+    Tuple: t_,
+    Map: m_,
+    Set: s_,
+    Dict: d_,
+    List: l_,
 }
