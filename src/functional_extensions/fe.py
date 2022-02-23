@@ -4,9 +4,11 @@ import types
 import typing
 from itertools import filterfalse
 import funcy
+from funcy.primitives import EMPTY
 
 
 # Abstract Base Classes
+
 
 class Object:
     def pipe_(self, function, *args, **kwargs): return function(self, *args, **kwargs)
@@ -37,6 +39,24 @@ class Function(Object, typing.Callable):
     def partial_(self, *args, **kwargs):
         return Function(funcy.partial(self, *args, **kwargs))
 
+    def curry_(self, n=EMPTY):
+        return Function(funcy.curry(self, n))
+
+    def complement_(self):
+        return Function(funcy.complement(self))
+
+    def all_fn_(self, *fs):
+        return Function(funcy.all_fn(self, *fs))
+
+    def any_fn_(self, *fs):
+        return Function(funcy.any_fn(self, *fs))
+
+    def none_fn_(self, *fs):
+        return Function(funcy.none_fn(self, *fs))
+
+    def one_fn_(self, *fs):
+        return Function(funcy.one_fn(self, *fs))
+
 
 class Container(Object, typing.Container):
     pass
@@ -47,7 +67,7 @@ class Iterable(Object, typing.Iterable):
     def to_set_(self): return Set(self)
     def to_tuple_(self): return Tuple(self)
 
-    def map_(self, function, *args, **kwargs):
+    def map_(self, function, *args, **kwargs) -> 'Iterable':
         ctor = initializers[type(self)]
         return ctor(function(element, *args, **kwargs) for element in self)
 
@@ -59,18 +79,20 @@ class Iterable(Object, typing.Iterable):
     def min_(self): return min(self)
     def max_(self): return max(self)
     def sum_(self): return sum(self)
-    def all_(self): return all(self)
-    def any_(self): return any(self)
-    def enumerate_(self, start=0): return Enumerate(self, start=start)
-    def zip_(self, *iterables): return Zip(self, *iterables)
+    def all_(self) -> bool: return all(self)
+    def any_(self) -> bool: return any(self)
+    def enumerate_(self, start=0) -> 'Enumerate':
+        return Enumerate(self, start=start)
+    def zip_(self, *iterables) -> 'Zip':
+        return Zip(self, *iterables)
 
-    def sort_(self, key=None, reverse=False):
+    def sort_(self, key=None, reverse=False) -> 'List':
         return List(sorted(self, key=key, reverse=reverse))
-    def filter_(self, condition):
+    def filter_(self, condition) -> 'Iterable':
         ctor = initializers[type(self)]
         return ctor(filter(condition, self))
 
-    def filterfalse_(self, condition):
+    def filterfalse_(self, condition) -> 'Iterable':
         ctor = initializers[type(self)]
         return ctor(filterfalse(condition, self))
 

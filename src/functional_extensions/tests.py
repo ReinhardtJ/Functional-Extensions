@@ -201,6 +201,20 @@ class TestObject(TestCase):
         except BaseException:
             self.fail(BaseException)
 
+    def test_init_helper_obj_already_has_attribute(self) -> None:
+        @attr.s(auto_attribs=True)
+        class Dog:
+            name: str
+            age: int
+            pipe_: typing.Any = None
+
+        dog = Dog('Nick', 4)
+        try:
+            o_(dog)
+            self.fail('Extended dog must not overwrite already existing pipe_-property')
+        except AttributeError:
+            pass
+
     def test_pipe_with_object(self) -> None:
         @attr.s(auto_attribs=True)
         class Dog(fe.Object):
@@ -266,3 +280,69 @@ class TestFunction(TestCase):
 
         multiply_by_three = f_(multiply).partial_(3)
         self.assertEqual(9, multiply_by_three(3))
+
+    def test_curry(self):
+        def add(a, b):
+            return a + b
+
+        curried = f_(add).curry_()
+        self.assertEqual(add(3, 4), curried(3)(4))
+
+    def test_complement(self):
+        def is_even(num):
+            return num % 2 == 0
+
+        is_odd = f_(is_even).complement_()
+        self.assertTrue(is_odd(4) != is_even(4))
+
+    def test_all_fn(self):
+        def is_even(num):
+            return num % 2 == 0
+
+        def is_int(num):
+            return type(num) == int
+
+        is_even_and_int = f_(is_even).all_fn_(is_int)
+        self.assertTrue(is_even_and_int(2))
+        self.assertFalse(is_even_and_int(2.0))
+        self.assertFalse(is_even_and_int(3))
+        self.assertFalse(is_even_and_int(3.0))
+
+    def test_any_fn(self):
+        def is_even(num):
+            return num % 2 == 0
+
+        def is_int(num):
+            return type(num) == int
+
+        is_even_or_int = f_(is_even).any_fn_(is_int)
+        self.assertTrue(is_even_or_int(2))
+        self.assertTrue(is_even_or_int(2.0))
+        self.assertTrue(is_even_or_int(3))
+        self.assertFalse(is_even_or_int(3.0))
+
+    def test_none_fn(self):
+        def is_even(num):
+            return num % 2 == 0
+
+        def is_int(num):
+            return type(num) == int
+
+        neither_even_nor_int = f_(is_even).none_fn_(is_int)
+        self.assertFalse(neither_even_nor_int(2))
+        self.assertFalse(neither_even_nor_int(2.0))
+        self.assertFalse(neither_even_nor_int(3))
+        self.assertTrue(neither_even_nor_int(3.0))
+
+    def test_one_fn(self):
+        def is_even(num):
+            return num % 2 == 0
+
+        def is_int(num):
+            return type(num) == int
+
+        even_xor_int = f_(is_even).one_fn_(is_int)
+        self.assertFalse(even_xor_int(2))
+        self.assertTrue(even_xor_int(2.0))
+        self.assertTrue(even_xor_int(3))
+        self.assertFalse(even_xor_int(3.0))
