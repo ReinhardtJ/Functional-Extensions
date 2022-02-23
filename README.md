@@ -40,7 +40,7 @@ extended_function = f_(add)
 
 
 ```python
-_pipe(self, function, *args, **kwargs)
+pipe_(self, function, *args, **kwargs)
 ``` 
 
 Applies the object `self` to a function `function` with the arguments from `*args` 
@@ -49,8 +49,8 @@ and `**kwarngs` and returns the result.
 ---
 
 ```python
-_copy(self) 
-_deepcopy(self)
+copy_(self) 
+deepcopy_(self)
 ``` 
 
 Copies `self`, either shallowly or deeply, and returns the result.
@@ -58,7 +58,7 @@ Copies `self`, either shallowly or deeply, and returns the result.
 ---
 
 ```python
-_type(self)
+type_(self)
 ```
 
 Returns `type(self)`.
@@ -67,9 +67,9 @@ Returns `type(self)`.
 
 #### Iterable
 ```python
-_to_list(self)
-_to_set(self)
-_to_tuple(self)
+to_list_(self)
+to_set_(self)
+to_tuple_(self)
 ```
 
 Converts the iterable `self` into the desired object.
@@ -77,15 +77,7 @@ Converts the iterable `self` into the desired object.
 ---
 
 ```python
-_map(self, function)
-```
-
-
-
----
-
-```python
-_map(self, function, *args, **kwargs)
+map_(self, function, *args, **kwargs)
 ```
 
 Applies every element of `self` to `function` and returns an iterable of the new
@@ -96,7 +88,7 @@ Returns an object of the same type as that of `self`.
 ---
 
 ```python
-_for_each(self, apply, *args, **kwargs)
+for_each_(self, apply, *args, **kwargs)
 ```
 
 For every element in `self`, `function` is called with said element, as well
@@ -105,11 +97,11 @@ as `*args` and `**kwargs`. The list is then returned.
 ---
 
 ```python
-_min(self)
-_max(self)
-_sum(self)
-_all(self)
-_any(self)
+min_(self)
+max_(self)
+sum_(self)
+all_(self)
+any_(self)
 ```
 
 
@@ -118,7 +110,7 @@ Returns `min(self)`, `max(self)`, `sum(self)`, `all(self)` and `any(self)` respe
 --- 
 
 ```python
-_sort(self, key=None, reverse=False)
+sort_(self, key=None, reverse=False)
 ```
 
 Sorts all elements from the iterable `self` in a new list and returns it. Calls
@@ -127,7 +119,7 @@ the `sorted`-function under the hood with `key` and `reverse`.
 ---
 
 ```python
-_enumerate(self, start=0)
+enumerate_(self, start=0)
 ``` 
 
 Returns an enumerate object from the iterable `self`.
@@ -135,7 +127,7 @@ Returns an enumerate object from the iterable `self`.
 --- 
 
 ```python
-zip(self, *iterables)
+zip_(self, *iterables)
 ```
 
 Iterates over `self` and all iterables in `*iterables`, producing tuples with
@@ -144,20 +136,20 @@ an item from each one.
 --- 
 
 ```python
-_filter(self, condition)
-_filterfalse(self, condition)
+filter_(self, condition)
+filterfalse_(self, condition)
 ```
 
-`_filter` returns a new instance of this iterable with only the elements that
+`filter_` returns a new instance of this iterable with only the elements that
 `condition` returns true.
 
-`_filterfalse`returns a new instance of this iterable
+`filterfalse_`returns a new instance of this iterable
 with only the elements that `condition` returns false.
 
 #### Reversible
 
 ```python
-_reverse(self)
+reverse_(self)
 ```
 
 Returns a new instance of the reversed iterable `self`.
@@ -165,7 +157,7 @@ Returns a new instance of the reversed iterable `self`.
 #### Sized
 
 ```python
-_len(self)
+len_(self)
 ```
 
 Returns `len(self)`
@@ -173,7 +165,7 @@ Returns `len(self)`
 #### MutableSequence
 
 ```python
-_map_inplace(self, apply, *args, **kwargs)
+map_inplace_(self, apply, *args, **kwargs)
 ```
 
 Applies every element of `self` to `function` and overwrites this element with
@@ -184,7 +176,7 @@ the new value.
 
 
 ```python
-_sort_inplace(self, key=None, reverse=False)
+sort_inplace_(self, key=None, reverse=False)
 ```
 
 Sorts the list in-place and returns the sorted list
@@ -219,10 +211,10 @@ function.
 ## Examples
 
 Most of those functions should not need additional examples, as they are a mere
-re-phrasing of some basic concepts and funtions of the Python programming 
-language. 
+re-phrasing of some basic concepts and functions of the Python programming 
+language and funcy.
 
-f you need an example anyway, you should consider looking at the test
+If you need an example anyway, you should consider looking at the test
 classes, which cover every function.
 
 
