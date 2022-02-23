@@ -168,6 +168,9 @@ class TestList(TestCase):
 
         self.assertEqual(expected, actual)
 
+    def test_enumerate(self) -> None:
+        # TODO(jonas) find a good test for the enumerate function
+        pass
 
 class TestObject(TestCase):
     def test_init_helper(self) -> None:

@@ -208,6 +208,34 @@ partial_(self, *args, **kwargs)
 Partially applys `*args`, and `**kwargs` to `self` and returns the partial 
 function.
 
+---
+
+```python
+curry_(self, n=EMPTY)
+```
+
+Curries `self`.
+
+---
+
+```python
+complement_(self)
+```
+
+Cunstructs a negation of `self`.
+
+---
+
+```python
+all_fn_(self, *fs)
+any_fn_(self, *fs)
+none_fn_(self, *fs)
+one_fn_(self, *fs)
+```
+
+Construct a predicate returning `True` when all, any, none or exactly one of 
+`self` and `fs` return True. 
+
 ## Examples
 
 Most of those functions should not need additional examples, as they are a mere
