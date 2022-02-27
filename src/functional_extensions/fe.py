@@ -116,8 +116,11 @@ class Collection(Sized, Iterable, Container, typing.Collection):
 
 
 class Sequence(Reversible, Collection, typing.Sequence):
-    pass
+    def first_(self) -> typing.Any:
+        return self[0]
 
+    def last_(self) -> typing.Any:
+        return self[-1]
 
 class MutableSequence(Sequence, typing.MutableSequence):
     def map_inplace_(self, apply, *args, **kwargs):
@@ -173,6 +176,10 @@ def initialize_extended_list(*values):
     return List(values)
 
 def initialize_extended_object(instance):
+    """
+    monkey-patches all functions that we want to have on a normal object onto
+    the instance
+    """
     methods = [member for member in inspect.getmembers(Object)
                if not member[0].startswith('__')]
     for method in methods:

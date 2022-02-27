@@ -6,7 +6,7 @@ with open('README.md', 'r') as f:
       long_description = f.read()
 
 setup(name='funext',
-      version='0.1.0',
+      version='0.1.1',
       author='Jonas Reinhardt',
       author_email='jonas@reinhardt.ai',
       description='Functional extensions for Python objects',
@@ -21,5 +21,6 @@ setup(name='funext',
                    'Operating System :: OS Independent'],
       package_dir={'': 'src'},
       packages=setuptools.find_packages(where="src"),
-      python_requires=">=3.7"
+      python_requires=">=3.7",
+      install_requires=['funcy>=1.17']
 )

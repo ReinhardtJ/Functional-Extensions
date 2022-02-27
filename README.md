@@ -1,15 +1,18 @@
 # Functional Extensions
-for Python
+**for Python**
+
+https://pypi.org/project/funext/
 
 This repository aims to extend the Python programming language by adding some
-known concepts from other popular programming languages. Most of those concepts
-are known from languages that support functional programming.
+useful (functional) extensions to objects, functions and data structures. Some
+of those extensions include:
 
 - being able to chain pure (and mutating) functions by calling them directly 
   on objects. Most of those functions are known from the built-in functions.
-  
+ 
 - applying functions to objects and chaining them through a pipe-function
-- composing functions (not yet implemented)
+
+- composing functions 
 
 ## Usage
 
@@ -266,10 +269,10 @@ for element in squared:
 ```python
 def negative_square(x): return - (x ** 2)
 
-fe.List.from_values(4, 1, 2, 3)\
-       .map_inplace(negative_square)\
-       .fe_sort()\
-       .for_each(print)
+l_(4, 1, 2, 3) \
+    .map_inplace_(negative_square) \
+    .sort_() \
+    .for_each_(print) 
 ```
 
 There are 4 things happening. In the top example, all things are expressed via
@@ -280,16 +283,16 @@ elements
 In the bottom example, every "thing" that is happening, is expressed in a 
 coherent way - by calling a function.
 
-| Requirement                                       | Corresponding Function                       |
-|---------------------------------------------------|----------------------------------------------|
-| Initialize a list with the numbers `[4, 1, 2, 3]` | `.from_values(4, 1, 2, 3)`                   |
-| Take the negative square                          | `.map_inplace(negative_square)` <sup>1</sup> |
-| Sort the list                                     | `.fe_sort()`                                 |
-| Print every element individually                  | `.for_each(print)`                           |
+| Requirement                                       | Corresponding Function                        |
+|---------------------------------------------------|-----------------------------------------------|
+| Initialize a list with the numbers `[4, 1, 2, 3]` | `l_(4, 1, 2, 3)`                              |
+| Take the negative square                          | `.map_inplace_(negative_square)` <sup>1</sup> |
+| Sort the list                                     | `.sort_()`                                    |
+| Print every element individually                  | `.for_each_(print)`                           |
 
 <sup>1</sup> we could also use a lambda-function in-place to avoid having to
 declare an own function for this case. However, the code might become slightly
-more expressive. Which brings us to the next "principle"
+less expressive. Which brings us to the next "principle"
 
 > Explicit is better than implicit
 
@@ -307,11 +310,11 @@ All other functions are designed to be pure, and not cause anything to happen
 outside of their little scope.
 
 All function that are not pure, are explicitly named like that, for example
-`map_inplace`
+`map_inplace_`
 
 All functions that have similar names than built-in functions, have an 
-explicit "fe_"-prefix to denote that they do things differently, for example
-`fe_sort`, which adheres to the rule that functions are pure, unlike the `sort()`-
+explicit "_"-postfix to denote that they do things differently, for example
+`sort_`, which adheres to the rule that functions are pure, unlike the `sort()`-
 function from the builtin `list`-class.
 
 > Simple is better than complex
