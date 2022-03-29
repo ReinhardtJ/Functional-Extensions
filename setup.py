@@ -6,7 +6,7 @@ with open('README.md', 'r') as f:
       long_description = f.read()
 
 setup(name='funext',
-      version='0.1.1',
+      version='0.2.0',
       author='Jonas Reinhardt',
       author_email='jonas@reinhardt.ai',
       description='Functional extensions for Python objects',
