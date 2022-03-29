@@ -122,6 +122,12 @@ class Sequence(Reversible, Collection, typing.Sequence):
     def last_(self) -> typing.Any:
         return self[-1]
 
+    def first_or_default_(self, default):
+        return self[0] if self else default()
+
+    def first_or_none_(self):
+        return self[0] if self else None
+
 class MutableSequence(Sequence, typing.MutableSequence):
     def map_inplace_(self, apply, *args, **kwargs):
         """Projects each element of the List to a new element and mutates the

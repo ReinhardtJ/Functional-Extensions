@@ -172,6 +172,21 @@ class TestList(TestCase):
         # TODO(jonas) find a good test for the enumerate function
         pass
 
+    def test_first_or_default(self) -> None:
+        numbers = l_(1, 2, 3, 4)
+        empty = l_()
+
+        self.assertEqual(1, numbers.first_or_default_(int))
+        self.assertEqual(0, empty.first_or_default_(int))
+
+    def test_first_or_none(self) -> None:
+        numbers = l_(1, 2, 3, 4)
+        empty = l_()
+
+        self.assertEqual(1, numbers.first_or_none_())
+        self.assertEqual(None, empty.first_or_none_())
+
+
 class TestObject(TestCase):
     def test_init_helper(self) -> None:
         @attr.s(auto_attribs=True)
